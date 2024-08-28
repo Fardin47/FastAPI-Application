@@ -46,3 +46,8 @@ def create_item(item: ItemCreate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(db_item)
     return db_item
+
+
+@app.get("/items")
+def read_items(db: Session = Depends(get_db)):
+    return db.query(Item).all()
