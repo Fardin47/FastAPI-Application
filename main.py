@@ -1,33 +1,25 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
+from sqlalchemy import create_engine, Column, Integer, String, Float
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.declarative import declarative_base
+
+DATABASE_URL = "postgresql://postgres:postgres@localhost/FastAPI_db"
+
+engine = create_engine(DATABASE_URL)
+
+SessionLocal = sessionmaker(automatic=False, autoflush=False, bind=engine)
+Base = declarative_base()
 
 app = FastAPI()
 
-
 items = []
 
-class Item(BaseModel):
-    name: str
-    description: str = None
-    price: float
 
-@app.get("/items", description="This route is to return list of items")
-def read_items():
-    return items
+class Item(Base):
+    __tablename__ = "items"
 
-
-@app.post("/items", description="This route is to create an item")
-def create_item(item: Item):
-    item_id = len(items) + 1
-    item_dict = item.model_dump()
-    item_dict.update({"id": item_id})
-    items.append(item_dict)
-    return item_dict
-
-
-@app.get("/items/{item_id}", description="This route is to return a specific item")
-def read_item(item_id: int):
-    for item in items:
-        if item["id"] == item_id:
-            return item
-    raise HTTPException(status_code=404, detail="Item not found")
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, index=True)
+    description = Column(String, index=True)
+    price = Column(Integer, index=True)
