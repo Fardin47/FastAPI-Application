@@ -51,3 +51,11 @@ def create_item(item: ItemCreate, db: Session = Depends(get_db)):
 @app.get("/items")
 def read_items(db: Session = Depends(get_db)):
     return db.query(Item).all()
+
+
+@app.get("/items/{item_id}")
+def read_item(item_id: int, db: Session = Depends(get_db)):
+    item = db.query(Item).filter(Item.id == item_id).first()
+    if item is None:
+        raise HTTPException(status_code=404, detail="Item Not Found!")
+    return item
