@@ -4,6 +4,7 @@ from sqlalchemy import create_engine, Column, Integer, String, Float
 from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.ext.declarative import declarative_base
 
+# Specifying connection details to the PostgreSQL DB.
 DATABASE_URL = "postgresql://postgres:postgres@localhost/FastAPI_db"
 
 engine = create_engine(DATABASE_URL)
@@ -13,7 +14,7 @@ Base = declarative_base()
 
 app = FastAPI()
 
-
+# Defining Item Model (DB Table)
 class Item(Base):
     __tablename__ = "items"
 
@@ -39,6 +40,7 @@ def get_db():
         db.close()
 
 
+# Creating a New item Endpoint.
 @app.post("/items")
 def create_item(item: ItemCreate, db: Session = Depends(get_db)):
     db_item = Item(name=item.name, description=item.description, price=item.price)
@@ -47,12 +49,12 @@ def create_item(item: ItemCreate, db: Session = Depends(get_db)):
     db.refresh(db_item)
     return db_item
 
-
+# Reading all items Endpoint.
 @app.get("/items")
 def read_items(db: Session = Depends(get_db)):
     return db.query(Item).all()
 
-
+# Reading a specific item Endpoint.
 @app.get("/items/{item_id}")
 def read_item(item_id: int, db: Session = Depends(get_db)):
     item = db.query(Item).filter(Item.id == item_id).first()
